@@ -1,0 +1,33 @@
+---
+// End-of-post song recommendation. Use in any .mdx post:
+//   import SongPick from '../../components/SongPick.astro';
+//   <SongPick url="https://open.spotify.com/track/XXXX" title="Song" artist="Artist" />
+// The Spotify embed renders the album artwork, title, artist, a preview, and a
+// link straight to the track — so all you need is the track's share URL.
+interface Props {
+  /** Spotify track share URL (the link from "Share → Copy Song Link"). */
+  url: string;
+  /** Optional — used for the iframe's accessible title. */
+  title?: string;
+  artist?: string;
+}
+const { url, title, artist } = Astro.props;
+
+// Turn a normal track URL into its embed form, dropping any ?si= tracking query.
+const embedUrl = url.replace('/track/', '/embed/track/').split('?')[0];
+const label = title
+  ? `Spotify player — ${title}${artist ? ` by ${artist}` : ''}`
+  : 'Spotify player';
+---
+
+<aside class="not-prose my-12">
+  <iframe
+    src={embedUrl}
+    title={label}
+    width="100%"
+    height="352"
+    loading="lazy"
+    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+    allowfullscreen
+    style="display:block; border:0; border-radius:12px;"></iframe>
+</aside>

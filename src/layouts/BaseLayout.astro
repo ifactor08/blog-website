@@ -1,0 +1,90 @@
+---
+import { SITE } from '../config';
+import SEO from '../components/SEO.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  type?: 'website' | 'article';
+  image?: string;
+  publishedTime?: Date;
+  modifiedTime?: Date;
+  tags?: string[];
+}
+
+const {
+  title,
+  description = SITE.description,
+  type = 'website',
+  image,
+  publishedTime,
+  modifiedTime,
+  tags,
+} = Astro.props;
+
+---
+
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title={SITE.title}
+      href={new URL('rss.xml', Astro.site)}
+    />
+
+    {/* No-flash theme init: runs before paint. */}
+    <script is:inline>
+      (() => {
+        try {
+          // Default to light; only honor an explicit saved choice.
+          document.documentElement.dataset.theme =
+            localStorage.getItem('theme') ?? 'light';
+        } catch {
+          document.documentElement.dataset.theme = 'light';
+        }
+      })();
+    </script>
+
+    <SEO
+      title={title}
+      description={description}
+      type={type}
+      image={image}
+      publishedTime={publishedTime}
+      modifiedTime={modifiedTime}
+      tags={tags}
+    />
+
+    {
+      SITE.cloudflareAnalyticsToken && import.meta.env.PROD && (
+        <script
+          is:inline
+          defer
+          src="https://static.cloudflareinsights.com/beacon.min.js"
+          data-cf-beacon={`{"token": "${SITE.cloudflareAnalyticsToken}"}`}
+        />
+      )
+    }
+  </head>
+  <body>
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:bg-[var(--accent)] focus:px-4 focus:py-2 focus:text-[var(--accent-fg)]"
+      >Skip to content</a
+    >
+    <Header />
+    <main id="main" class="mx-auto max-w-6xl px-5 py-12 sm:px-8">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

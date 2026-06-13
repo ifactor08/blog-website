@@ -1,0 +1,59 @@
+---
+import { SITE } from '../config';
+import ThemeToggle from './ThemeToggle.astro';
+import Wordmark from './Wordmark.astro';
+
+const path = Astro.url.pathname;
+const isActive = (href: string) =>
+  href === '/' ? path === '/' : path.startsWith(href);
+---
+
+<header
+  class="sticky top-0 z-50 border-b border-[var(--rule)]/30 bg-[var(--bg)]/85 backdrop-blur-md"
+>
+  <div
+    class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-4 sm:px-8"
+  >
+    <div class="flex items-baseline gap-2">
+      <Wordmark />
+      <span class="h-2 w-2 bg-[var(--accent)]"></span>
+    </div>
+
+    <nav class="flex items-center gap-4 sm:gap-6">
+      <ul class="hidden items-center gap-5 sm:flex">
+        {
+          SITE.nav.map((item) => (
+            <li>
+              <a
+                href={item.href}
+                class="kicker link-underline"
+                style={isActive(item.href) ? 'color: var(--accent)' : ''}
+                aria-current={isActive(item.href) ? 'page' : undefined}
+              >
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+      <ThemeToggle />
+    </nav>
+  </div>
+</header>
+
+<!-- Mobile nav -->
+<nav
+  class="flex items-center gap-4 overflow-x-auto border-b border-[var(--rule)]/30 px-5 py-2 sm:hidden"
+>
+  {
+    SITE.nav.map((item) => (
+      <a
+        href={item.href}
+        class="kicker whitespace-nowrap"
+        style={isActive(item.href) ? 'color: var(--accent)' : ''}
+      >
+        {item.label}
+      </a>
+    ))
+  }
+</nav>

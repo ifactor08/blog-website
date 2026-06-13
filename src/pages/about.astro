@@ -1,0 +1,108 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { SITE } from '../config';
+
+const stack: { group: string; items: string[] }[] = [
+  { group: 'Languages', items: ['Python', 'TypeScript', 'JavaScript', 'Haskell', 'Java', 'Bash'] },
+  { group: 'AI / LLM', items: ['Google Gemini', 'OpenAI', 'LangChain', 'LangGraph'] },
+  { group: 'Frameworks', items: ['React', 'Next.js', 'Flask'] },
+  { group: 'Databases', items: ['ClickHouse', 'PostgreSQL', 'BigQuery', 'MySQL', 'Neo4j', 'Redis'] },
+  { group: 'Cloud & DevOps', items: ['GCP', 'AWS', 'Docker', 'Kubernetes', 'Terraform', 'Kafka', 'GitHub Actions'] },
+];
+---
+
+<BaseLayout title="About" description={`About ${SITE.author}.`}>
+  <header class="border-b-2 border-[var(--rule)] pb-6">
+    <p class="kicker">who's writing</p>
+    <h1 class="mt-3 text-5xl font-bold tracking-tight sm:text-7xl">About</h1>
+  </header>
+
+  {/* Intro: photo + summary */}
+  <section class="mt-12 grid gap-10 sm:grid-cols-[minmax(0,18rem)_1fr] sm:items-start">
+    <figure class="relative">
+      <img
+        src="/ishan.jpg"
+        alt={SITE.author}
+        width="900"
+        height="1201"
+        class="w-full border border-[var(--rule)]/40 grayscale transition-all duration-500 hover:grayscale-0"
+        loading="eager"
+      />
+      <figcaption
+        class="kicker absolute -bottom-3 left-3 bg-[var(--accent)] px-2 py-1 text-[var(--accent-fg)]"
+      >
+        IK
+      </figcaption>
+    </figure>
+
+    <div>
+      <p class="text-2xl font-bold leading-tight tracking-tight">
+        Founding Engineer &amp; Lead @ Clevrr AI
+      </p>
+      <p class="kicker mt-2">
+        Ex-Juspay · D2C · Fintech
+      </p>
+      <div class="prose mt-6 max-w-none">
+        <p>
+          I build systems. For <strong>5+ years</strong> I've designed and
+          shipped scalable, cloud-native platforms end to end — architecting how
+          the pieces fit together and making sure they hold up in production.
+        </p>
+        <p>
+          A lot of that work lives in the data layer: engineering ETL pipelines
+          that move data reliably at scale, integrating LLMs into real
+          production workflows, and tying everything together with robust CI/CD.
+          The throughline is turning messy business requirements into
+          dependable, high-performance products.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  {/* Tech stack */}
+  <section class="mt-16">
+    <div class="flex items-baseline justify-between border-b-2 border-[var(--rule)] pb-3">
+      <h2 class="kicker">Tech stack</h2>
+      <span class="kicker">the toolbox</span>
+    </div>
+    <dl class="mt-2">
+      {
+        stack.map((row) => (
+          <div class="grid grid-cols-1 gap-x-8 gap-y-3 border-t border-[var(--rule)]/30 py-6 sm:grid-cols-[10rem_1fr]">
+            <dt class="kicker pt-1">{row.group}</dt>
+            <dd class="flex flex-wrap gap-2">
+              {row.items.map((item) => (
+                <span class="border border-[var(--rule)]/30 px-3 py-1 font-mono text-sm transition-colors hover:border-[var(--accent)] hover:text-[var(--accent)]">
+                  {item}
+                </span>
+              ))}
+            </dd>
+          </div>
+        ))
+      }
+    </dl>
+  </section>
+
+  {/* Links */}
+  <section class="mt-16">
+    <div class="flex items-baseline justify-between border-b-2 border-[var(--rule)] pb-3">
+      <h2 class="kicker">Find me elsewhere</h2>
+    </div>
+    <ul class="mt-4 flex flex-wrap gap-5">
+      {
+        SITE.social.map((item) => (
+          <li>
+            <a
+              href={item.href}
+              rel="me noopener"
+              target={item.href.startsWith('http') ? '_blank' : undefined}
+              class="kicker link-underline text-base"
+            >
+              {item.label} ↗
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+</BaseLayout>

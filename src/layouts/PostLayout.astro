@@ -1,0 +1,97 @@
+---
+import type { MarkdownHeading } from 'astro';
+import BaseLayout from './BaseLayout.astro';
+import TableOfContents from '../components/TableOfContents.astro';
+import type { Post } from '../utils/posts';
+import { formatDate, isoDate, tagSlug } from '../utils/posts';
+
+interface Props {
+  post: Post;
+  headings?: MarkdownHeading[];
+}
+
+const { post, headings = [] } = Astro.props;
+const { title, description, pubDate, updatedDate, tags, heroImage } = post.data;
+
+// Show the TOC rail only when there are enough section headings to be useful.
+const tocHeadings = headings.filter((h) => h.depth === 2 || h.depth === 3);
+const hasToc = tocHeadings.length >= 3;
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  type="article"
+  image={heroImage}
+  publishedTime={pubDate}
+  modifiedTime={updatedDate}
+  tags={tags}
+>
+  <article>
+    <div
+      class:list={[
+        'lg:gap-12',
+        { 'lg:grid lg:grid-cols-[minmax(0,1fr)_15rem]': hasToc },
+      ]}
+    >
+      <div class="min-w-0">
+        <header class="border-b border-[var(--rule)]/30 pb-8">
+          <a href="/blog" class="kicker link-underline">← all posts</a>
+          <h1
+            class="mt-6 text-4xl font-bold leading-[1.05] tracking-tight sm:text-6xl"
+          >
+            {title}
+          </h1>
+          <p class="mt-5 max-w-2xl text-lg text-[var(--fg-muted)]">
+            {description}
+          </p>
+          <div class="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2">
+            <time datetime={isoDate(pubDate)} class="kicker"
+              >{formatDate(pubDate)}</time
+            >
+            {
+              updatedDate && (
+                <span class="kicker">· updated {formatDate(updatedDate)}</span>
+              )
+            }
+            {
+              tags.map((tag) => (
+                <a
+                  href={`/tags/${tagSlug(tag)}/`}
+                  class="kicker text-[var(--accent)]"
+                >
+                  #{tag}
+                </a>
+              ))
+            }
+          </div>
+        </header>
+
+        {
+          heroImage && (
+            <img
+              src={heroImage}
+              alt={title}
+              class="mt-8 w-full border border-[var(--rule)]/30"
+              loading="eager"
+            />
+          )
+        }
+
+        <div class:list={['prose mt-12', { 'mx-auto': !hasToc }]}>
+          <slot />
+        </div>
+      </div>
+
+      {
+        hasToc && (
+          <aside class="hidden lg:block">
+            <div class="sticky top-24">
+              <TableOfContents headings={headings} />
+            </div>
+          </aside>
+        )
+      }
+    </div>
+  </article>
+</BaseLayout>

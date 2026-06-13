@@ -1,0 +1,203 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/space-grotesk';
+@import '@fontsource-variable/jetbrains-mono';
+
+/* Tailwind v4 dark-mode driven by the `data-theme` attribute on <html>. */
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+/* ─── Design tokens ─────────────────────────────────────────────────── */
+@theme {
+  --font-display: 'Space Grotesk Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, 'SF Mono', monospace;
+
+  /* fluid type scale */
+  --text-kicker: 0.75rem;
+  --text-mega: clamp(2.75rem, 9vw, 7rem);
+  --text-hero: clamp(2.25rem, 7vw, 5rem);
+
+  --radius-none: 0;
+}
+
+:root {
+  --bg: #f4f1ea;          /* warm paper */
+  --bg-elev: #ece5d8;
+  --fg: #14110f;          /* near-black ink */
+  --fg-muted: #6b655c;
+  --rule: #14110f;        /* hairline rules */
+  --accent: #ff3b00;      /* signal red */
+  --accent-fg: #ffffff;
+  --grain: 0.04;
+}
+
+[data-theme='dark'] {
+  --bg: #0c0c0d;
+  --bg-elev: #161618;
+  --fg: #f4f1ea;
+  --fg-muted: #9a948a;
+  --rule: #f4f1ea;
+  --accent: #ff4d1c;
+  --accent-fg: #0c0c0d;
+  --grain: 0.06;
+}
+
+/* ─── Base ──────────────────────────────────────────────────────────── */
+* {
+  border-color: color-mix(in srgb, var(--rule) 18%, transparent);
+}
+
+html {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-display);
+  -webkit-font-smoothing: antialiased;
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100dvh;
+  overflow-x: hidden;
+}
+
+/* Film-grain overlay for tactile, print-like texture. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: var(--grain);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--accent-fg);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Mono "kicker" labels used throughout for that editorial system feel. */
+.kicker {
+  font-family: var(--font-mono);
+  font-size: var(--text-kicker);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+}
+
+/* Accent underline reveal on hover. */
+.link-underline {
+  background-image: linear-gradient(var(--accent), var(--accent));
+  background-size: 0% 2px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.link-underline:hover {
+  background-size: 100% 2px;
+}
+
+/* Theme switch: let the JS-driven circular clip-path own the animation,
+   not the browser's default cross-fade. The new theme grows over the old. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-old(root) {
+  z-index: 1;
+}
+::view-transition-new(root) {
+  z-index: 2;
+}
+
+/* Shiki dual-theme swap. */
+[data-theme='dark'] .astro-code,
+[data-theme='dark'] .astro-code span {
+  color: var(--shiki-dark) !important;
+  background-color: var(--shiki-dark-bg) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ─── Long-form article typography (.prose) ─────────────────────────── */
+.prose {
+  max-width: 68ch;
+  font-size: 1.125rem;
+  line-height: 1.7;
+}
+.prose > * + * {
+  margin-top: 1.5em;
+}
+.prose h2,
+.prose h3,
+.prose h4 {
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin-top: 2em;
+  /* Keep jump-link targets clear of the sticky header. */
+  scroll-margin-top: 6rem;
+}
+.prose h2 {
+  font-size: 1.9rem;
+}
+.prose h3 {
+  font-size: 1.45rem;
+}
+.prose a {
+  text-decoration: underline;
+  text-decoration-color: var(--accent);
+  text-underline-offset: 3px;
+  text-decoration-thickness: 2px;
+}
+.prose code:not(pre code) {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  background: var(--bg-elev);
+  padding: 0.15em 0.4em;
+  border: 1px solid color-mix(in srgb, var(--rule) 20%, transparent);
+}
+.prose pre {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  padding: 1.25rem 1.5rem;
+  overflow-x: auto;
+  border: 1px solid color-mix(in srgb, var(--rule) 20%, transparent);
+}
+.prose blockquote {
+  border-left: 3px solid var(--accent);
+  padding-left: 1.25rem;
+  font-style: italic;
+  color: var(--fg-muted);
+}
+.prose img {
+  border: 1px solid color-mix(in srgb, var(--rule) 20%, transparent);
+}
+.prose ul,
+.prose ol {
+  padding-left: 1.4em;
+}
+.prose ul {
+  list-style: square;
+}
+.prose ol {
+  list-style: decimal;
+}
+.prose hr {
+  border: none;
+  border-top: 1px solid var(--rule);
+}

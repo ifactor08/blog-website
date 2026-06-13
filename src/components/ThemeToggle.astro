@@ -1,0 +1,76 @@
+---
+// Toggle button. The no-flash init script lives in BaseLayout's <head>;
+// this only wires the click + keeps the icon in sync.
+---
+
+<button
+  id="theme-toggle"
+  type="button"
+  class="kicker flex items-center gap-2 border border-[var(--rule)]/30 px-3 py-1.5 hover:bg-[var(--accent)] hover:text-[var(--accent-fg)] transition-colors"
+  aria-label="Toggle color theme"
+>
+  <span data-theme-icon aria-hidden="true">◐</span>
+  <span data-theme-label>theme</span>
+</button>
+
+<script>
+  const btn = document.getElementById('theme-toggle');
+  const icon = btn?.querySelector('[data-theme-icon]');
+  const label = btn?.querySelector('[data-theme-label]');
+
+  function sync() {
+    const isDark = document.documentElement.dataset.theme === 'dark';
+    if (icon) icon.textContent = isDark ? '☾' : '☀';
+    if (label) label.textContent = isDark ? 'dark' : 'light';
+  }
+
+  function applyTheme(next: string) {
+    document.documentElement.dataset.theme = next;
+    try {
+      localStorage.setItem('theme', next);
+    } catch {}
+    sync();
+  }
+
+  btn?.addEventListener('click', (e) => {
+    const next =
+      document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // No View Transitions support (or reduced motion) → instant switch.
+    // @ts-expect-error — startViewTransition is newer than the lib types.
+    if (reduced || typeof document.startViewTransition !== 'function') {
+      applyTheme(next);
+      return;
+    }
+
+    // Grow a circle from the click point to the farthest corner.
+    const x = e.clientX;
+    const y = e.clientY;
+    const endRadius = Math.hypot(
+      Math.max(x, innerWidth - x),
+      Math.max(y, innerHeight - y),
+    );
+
+    // @ts-expect-error — startViewTransition is newer than the lib types.
+    const transition = document.startViewTransition(() => applyTheme(next));
+    transition.ready.then(() => {
+      document.documentElement.animate(
+        {
+          clipPath: [
+            `circle(0px at ${x}px ${y}px)`,
+            `circle(${endRadius}px at ${x}px ${y}px)`,
+          ],
+        },
+        {
+          duration: 480,
+          easing: 'cubic-bezier(0.65, 0, 0.35, 1)',
+          pseudoElement: '::view-transition-new(root)',
+        },
+      );
+    });
+  });
+
+  sync();
+</script>

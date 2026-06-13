@@ -1,0 +1,29 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostCard from '../../components/PostCard.astro';
+import { getPublishedPosts } from '../../utils/posts';
+
+const posts = await getPublishedPosts();
+---
+
+<BaseLayout
+  title="Blog"
+  description="All posts — software, systems, and the things I build."
+>
+  <header class="border-b-2 border-[var(--rule)] pb-6">
+    <p class="kicker">{`${posts.length} post${posts.length === 1 ? '' : 's'}`}</p>
+    <h1 class="mt-3 text-5xl font-bold tracking-tight sm:text-7xl">Blog</h1>
+  </header>
+
+  {
+    posts.length === 0 ? (
+      <p class="py-12 text-[var(--fg-muted)]">No posts yet.</p>
+    ) : (
+      <div>
+        {posts.map((post, i) => (
+          <PostCard post={post} index={i + 1} />
+        ))}
+      </div>
+    )
+  }
+</BaseLayout>

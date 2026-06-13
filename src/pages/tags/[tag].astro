@@ -1,0 +1,39 @@
+---
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostCard from '../../components/PostCard.astro';
+import { getTagMap, tagSlug, type Post } from '../../utils/posts';
+
+export const getStaticPaths = (async () => {
+  const tagMap = await getTagMap();
+  return [...tagMap.entries()].map(([tag, posts]) => ({
+    params: { tag: tagSlug(tag) },
+    props: { tag, posts },
+  }));
+}) satisfies GetStaticPaths;
+
+interface Props {
+  tag: string;
+  posts: Post[];
+}
+const { tag, posts } = Astro.props as Props;
+---
+
+<BaseLayout
+  title={`#${tag}`}
+  description={`Posts tagged ${tag}.`}
+>
+  <header class="border-b-2 border-[var(--rule)] pb-6">
+    <a href="/tags" class="kicker link-underline">← all tags</a>
+    <p class="kicker mt-4">
+      {`${posts.length} post${posts.length === 1 ? '' : 's'}`}
+    </p>
+    <h1 class="mt-3 text-5xl font-bold tracking-tight sm:text-7xl">
+      <span class="text-[var(--accent)]">#</span>{tag}
+    </h1>
+  </header>
+
+  <div>
+    {posts.map((post, i) => <PostCard post={post} index={i + 1} />)}
+  </div>
+</BaseLayout>

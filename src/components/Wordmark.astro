@@ -1,0 +1,72 @@
+---
+// Animated wordmark: the full name collapses into the "IK" monogram,
+// keeping the I and K in place while the rest of each word folds away.
+// Collapses ~1.4s after load (the signature moment), expands on hover/focus.
+import { SITE } from '../config';
+---
+
+<a href="/" class="wordmark" aria-label={`${SITE.author} — Home`}>
+  <span aria-hidden="true">
+    <span class="wm-fixed">I</span><span class="wm-rest">shan&nbsp;</span><span
+      class="wm-fixed">K</span><span class="wm-rest">ulshrestha</span>
+  </span>
+  <span class="sr-only">{SITE.author}</span>
+</a>
+
+<style>
+  .wordmark {
+    display: inline-flex;
+    align-items: baseline;
+    white-space: nowrap;
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .wm-fixed {
+    transition: transform 0.5s cubic-bezier(0.65, 0, 0.35, 1);
+  }
+  /* Each non-anchor segment folds to zero width + fades out. */
+  .wm-rest {
+    display: inline-block;
+    overflow: hidden;
+    max-inline-size: 20ch;
+    opacity: 1;
+    vertical-align: bottom;
+    transition:
+      max-inline-size 0.55s cubic-bezier(0.65, 0, 0.35, 1),
+      opacity 0.35s ease;
+  }
+  /* Collapsed → "IK". */
+  .wordmark.is-collapsed .wm-rest {
+    max-inline-size: 0;
+    opacity: 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .wm-rest {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  const wm = document.querySelector<HTMLElement>('.wordmark');
+  if (wm) {
+    const collapse = () => wm.classList.add('is-collapsed');
+    const expand = () => wm.classList.remove('is-collapsed');
+
+    // Signature collapse shortly after load.
+    let initial = window.setTimeout(collapse, 1400);
+
+    // Expand on hover/focus; recollapse on leave/blur.
+    wm.addEventListener('mouseenter', () => {
+      window.clearTimeout(initial);
+      expand();
+    });
+    wm.addEventListener('focus', expand);
+    wm.addEventListener('mouseleave', collapse);
+    wm.addEventListener('blur', collapse);
+  }
+</script>

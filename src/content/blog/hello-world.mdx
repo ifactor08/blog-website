@@ -1,0 +1,59 @@
+---
+title: 'Hello, world (and why this blog exists)'
+description: "A first post about figuring out how things actually work under the hood — and a promise to keep myself honest while I do it."
+pubDate: 2026-06-13
+tags: ['meta', 'learning']
+---
+
+import SongPick from '../../components/SongPick.astro';
+
+You know that moment when you use something every day — a database, a load balancer, the little green lock in your browser — and you suddenly realize you have *no idea* what it's actually doing?
+
+Yeah. That moment. I get it a lot.
+
+I can wire up a service, ship it, watch it work. But "it works" and "I understand why it works" are two very different things. And honestly? For a long time I was fine living in the first one. The second one takes effort. It's slower. Nobody pays you to know *why* the thing you just glued together actually holds.
+
+But here's what I've noticed. The gap between those two — between using and understanding — is exactly where the interesting bugs live. The 2am incidents. The "wait, that's not how I thought it worked" surprises. The stuff that makes you a genuinely better engineer instead of a better copy-paster.
+
+So this blog is me closing that gap. Out loud. In public.
+
+## What this is, really
+
+Think of it as a learning log with a spine.
+
+I'm going to pick things I use but don't fully *get* — how ClickHouse actually stores a column, what really happens when an LLM call streams back token by token, why Kafka can lose your message in ways the docs whisper about but never shout — and I'm going to take them apart. Slowly. Properly. Down to the part where it finally clicks.
+
+Not surface-level "here's the getting-started guide" stuff. There's enough of that. I mean the architecture underneath. The trade-offs someone made years ago that you're still living with today.
+
+And the public part isn't for show. It's the accountability. It's a lot harder to half-understand something when you've committed to explaining it to a stranger. If I can't write it down clearly, I didn't really learn it. Simple as that.
+
+## A tiny example, because I can't help myself
+
+Take this exact page. The one you're reading.
+
+There's no server rendering it for you right now. None. When I `git push`, a build runs once, turns all my Markdown into plain HTML files, and drops them onto a CDN. So when you clicked through, you didn't wake up a database or spin up a function — you just grabbed a file off the edge node nearest to you. Probably in a few milliseconds.
+
+```bash
+# this is the whole "backend"
+git push   # → build runs → static files → CDN → done
+```
+
+That's it. That's the architecture. And it's *fast* precisely because it does almost nothing at request time. The cleverness all happened earlier, at build, when nobody was waiting.
+
+See, that's the kind of thing I want to dig into. Not "use a static site generator" — but *why* moving work from request-time to build-time changes everything about how a system feels. Where that idea shows up again in caching, in compilers, in pre-computed analytics tables. Same pattern, wearing different clothes.
+
+## The deal
+
+I'm not promising a post a week. I'm promising honesty. Some of these I'll get wrong on the first try and have to circle back. That's kind of the point — you're watching someone actually learn, not perform expertise.
+
+If that sounds like your thing, stick around.
+
+And one more thing. Every post ends with a song. Whatever's genuinely in my rotation while I'm writing — no algorithm, no curation, just what I had on. Think of it as the soundtrack to the deep-dive.
+
+Here's the first one.
+
+<SongPick
+  url="https://open.spotify.com/track/2fhOljbX79loRcdl47SFye"
+  title="Moonlight on the River"
+  artist="Mac DeMarco"
+/>
