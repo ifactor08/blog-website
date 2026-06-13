@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://blog-website.pages.dev/sitemap-index.xml
+Sitemap: https://ishan-writes.pages.dev/sitemap-index.xml

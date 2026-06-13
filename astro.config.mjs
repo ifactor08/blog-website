@@ -7,7 +7,7 @@ import tailwindcss from '@tailwindcss/vite';
 // Update `site` to your live URL (e.g. https://your-blog.pages.dev or a custom domain).
 // This drives canonical URLs, the sitemap, and absolute RSS links.
 export default defineConfig({
-  site: 'https://blog-website.pages.dev',
+  site: 'https://ishan-writes.pages.dev',
   integrations: [mdx(), sitemap()],
   vite: {
     plugins: [tailwindcss()],
