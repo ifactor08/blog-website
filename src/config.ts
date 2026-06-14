@@ -27,5 +27,5 @@ export const SITE = {
    * Cloudflare Web Analytics token. Paste the token from
    * Cloudflare dashboard → Web Analytics. Leave '' to disable.
    */
-  cloudflareAnalyticsToken: '',
+  cloudflareAnalyticsToken: 'd3572ef966ae45fcba599f82bcd95d7d',
 } as const;
