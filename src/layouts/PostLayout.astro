@@ -2,6 +2,7 @@
 import type { MarkdownHeading } from 'astro';
 import BaseLayout from './BaseLayout.astro';
 import TableOfContents from '../components/TableOfContents.astro';
+import LikeButton from '../components/LikeButton.astro';
 import type { Post } from '../utils/posts';
 import { formatDate, isoDate, tagSlug } from '../utils/posts';
 
@@ -81,6 +82,8 @@ const hasToc = tocHeadings.length >= 3;
         <div class:list={['prose mt-12', { 'mx-auto': !hasToc }]}>
           <slot />
         </div>
+
+        <LikeButton slug={post.id} />
       </div>
 
       {

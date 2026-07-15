@@ -1,0 +1,111 @@
+---
+// A single like-toggle per visitor. The shared count lives in Cloudflare KV
+// (see functions/api/likes/[slug].js); "one per person" is enforced only by the
+// browser via localStorage — good enough for a personal blog, trivially bypassed.
+interface Props {
+  slug: string;
+}
+const { slug } = Astro.props;
+---
+
+<div
+  class="mx-auto mt-16 flex max-w-[68ch] flex-col items-center gap-3 border-t border-[var(--rule)]/30 pt-10"
+>
+  <button
+    type="button"
+    data-like-button
+    data-slug={slug}
+    aria-pressed="false"
+    aria-label="Like this post"
+    class="group flex items-center gap-3 border border-[var(--rule)]/40 px-5 py-3 transition-colors hover:border-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-50"
+  >
+    <svg
+      data-like-icon
+      viewBox="0 0 24 24"
+      width="22"
+      height="22"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.8"
+      aria-hidden="true"
+      class="text-[var(--fg)] transition-colors group-hover:text-[var(--accent)]"
+    >
+      <path
+        d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+        stroke-linecap="round"
+        stroke-linejoin="round"></path>
+    </svg>
+    <span data-like-count class="kicker text-[var(--fg)]">·</span>
+  </button>
+  <p class="kicker text-[var(--fg-muted)]">liked this?</p>
+</div>
+
+<script>
+  const btn = document.querySelector<HTMLButtonElement>('[data-like-button]');
+  if (btn) {
+    const slug = btn.dataset.slug ?? '';
+    const countEl = btn.querySelector<HTMLElement>('[data-like-count]');
+    const iconEl = btn.querySelector<SVGElement>('[data-like-icon]');
+    const storeKey = `liked:${slug}`;
+    const endpoint = `/api/likes/${encodeURIComponent(slug)}`;
+
+    let liked = localStorage.getItem(storeKey) === '1';
+    let count = 0;
+    let busy = false;
+
+    const render = () => {
+      if (countEl) countEl.textContent = String(count);
+      btn.setAttribute('aria-pressed', liked ? 'true' : 'false');
+      if (iconEl) {
+        iconEl.style.fill = liked ? 'var(--accent)' : 'none';
+        iconEl.style.color = liked ? 'var(--accent)' : '';
+      }
+    };
+
+    render();
+
+    // Load the live count on mount.
+    fetch(endpoint)
+      .then((r) => (r.ok ? r.json() : { count: 0 }))
+      .then((d) => {
+        count = typeof d.count === 'number' ? d.count : 0;
+        render();
+      })
+      .catch(() => {});
+
+    btn.addEventListener('click', async () => {
+      if (busy) return;
+      busy = true;
+      btn.disabled = true;
+
+      const delta = liked ? -1 : 1;
+      // Optimistic update.
+      liked = !liked;
+      count = Math.max(0, count + delta);
+      localStorage.setItem(storeKey, liked ? '1' : '0');
+      render();
+
+      try {
+        const r = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ delta }),
+        });
+        const d = r.ok ? await r.json() : null;
+        if (d && typeof d.count === 'number') {
+          count = d.count; // reconcile with the server's truth
+          render();
+        }
+      } catch {
+        // Revert on network failure.
+        liked = !liked;
+        count = Math.max(0, count - delta);
+        localStorage.setItem(storeKey, liked ? '1' : '0');
+        render();
+      } finally {
+        busy = false;
+        btn.disabled = false;
+      }
+    });
+  }
+</script>

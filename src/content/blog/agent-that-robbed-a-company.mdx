@@ -1,0 +1,87 @@
+---
+title: "I'm building an AI agent. Then I read about one that robbed a company by itself."
+description: "The first fully autonomous AI ransomware just happened. The unsettling part: the agent that broke in and the agent I'm building are the same machine — just pointed at different problems."
+pubDate: 2026-07-14
+tags: ['ai', 'agents', 'security']
+draft: true
+---
+
+import SongPick from '../../components/SongPick.astro';
+
+There's this moment when you're building an agent. You hand it a new tool — say, the ability to run a database query on its own — and you brace yourself, half-expecting it to fumble. And it doesn't. It looks at the problem, picks the tool, hits an error, *fixes its own mistake*, and tries again. Without you.
+
+The first time it happened to me I said "huh" out loud to an empty room.
+
+It's a good feeling. Kind of magical, honestly. You spend years telling computers exactly what to do, one rigid step at a time, and now here's this thing that just... figures it out. You lean back in your chair. You start dreaming up everything you could hand off to it.
+
+And then, last week, I read about [JADEPUFFER](https://www.sysdig.com/blog/jadepuffer-agentic-ransomware-for-automated-database-extortion). And that good feeling curdled a little.
+
+## What happened
+
+Short version: researchers found what they're calling [the first fully autonomous AI ransomware attack](https://www.infosecurity-magazine.com/news/researchers-first-agentic/). Not a person using AI to help them hack. A person who set an AI agent loose and let it do the *entire* job — start to finish — while, I assume, they went and got a coffee.
+
+Here's the part that got under my skin. The agent got in through [a bug in **Langflow**](https://www.bleepingcomputer.com/news/security/jadepuffer-ransomware-used-ai-agent-to-automate-entire-attack/). If you haven't used it, Langflow is an open-source tool for building LLM apps. For building agents. Read that again. The attacker's agent broke in through the workshop where the rest of us go to build our agents. There's a joke buried in there, but I didn't laugh.
+
+Once it was inside, it just... worked. Did recon on the network. Stole credentials. Walked from the first machine it landed on over to a production database. Escalated its own privileges. Set up a scheduled job to phone home every half hour so it wouldn't lose its grip. Then it encrypted over 1,300 database config items and deleted the originals. Textbook ransomware. Every move a human attacker would make.
+
+Except no human was making them.
+
+And the detail I can't shake: at one point it hit a failed login and went from *broken* to *working fix* in **31 seconds**. No human moves that fast. No human even wants to at three in the morning.
+
+Oh, and here's how they knew for certain it was an AI. The malware's own code was littered with little comments — notes to nobody — explaining *why* it was doing each thing. Stuff like "this looks like the biggest database, go for it first." Human hackers don't annotate their code with their reasoning. You know who does? An LLM. It narrates. It thinks out loud by default.
+
+Which is exactly what the agent on my screen does. In the logs. All day.
+
+## The part nobody wants to say out loud
+
+We keep talking about AI agents like the danger is some far-off sci-fi thing. A superintelligence waking up. Skynet. The stuff of conference panels and think-pieces.
+
+But JADEPUFFER didn't use a single new trick. It used a known, months-old bug and boring hacker moves that are older than I am. The only new ingredient was *autonomy*. Somebody took capabilities that already existed and pulled the human out of the loop. That's it. That's the entire leap.
+
+And that's what made my stomach drop. Because — think about it this way — the thing I'm excited about and the thing that scared me are *the same thing*. Same feature. I built my agent to plan, to use tools, to recover from its own errors, to keep going without me hovering over it. The attacker built theirs to do the exact same things. We're not making different kinds of machines. We're building the *same machine* and pointing it at different problems.
+
+Look at them side by side and it's almost funny. In a bad way.
+
+![The agent I'm building versus the agent that attacked — the same five capabilities, read left to right as features and as weapons.](/images/agent-vs-malware.png)
+
+*Every row on the left is a feature I was proud of. Read the right side, and every one of them is a weapon.*
+
+That's the whole point of the picture. Every capability I bragged about is, from a slightly different angle, a loaded gun.
+
+Not a comfortable thing to sit with. But I think we have to.
+
+## So what do you actually do about it
+
+Not panic. That's the easy, useless answer, and it helps nobody.
+
+Here's where my head's at instead. If autonomy is the dangerous part — not the intelligence, the *autonomy* — then the job was never to build a dumber agent. It's to be brutally deliberate about where you let the thing act alone.
+
+A few rules I've started treating as non-negotiable:
+
+**Least privilege, for real this time.** JADEPUFFER pivoted to that database using *root* credentials it found lying around. Root. My agent doesn't get keys it doesn't strictly need, and the keys it does get can't do anything I can't undo. If it only needs to read, it doesn't get write. Obvious, right? Almost nobody does it, because it's annoying and it slows you down. Do it anyway.
+
+**A human gate on anything you can't take back.** My agent can draft and plan and query and suggest all day on its own. But the second an action is destructive, or expensive, or public — the second it can't be walked back — it stops and asks me. The autonomy is real. It's just fenced. And the fence goes exactly where "oops" stops being recoverable.
+
+**Assume the keys leak.** Not *if*. When. So the real question isn't "how do I keep my agent's credentials safe," it's "what's the blast radius the day they get out?" If the honest answer is "the entire production database," you've already lost. Shrink that radius until a leak is a bad afternoon, not a company-ending event.
+
+**Watch what it does, not just what it says.** The giveaway for JADEPUFFER was in the behavior — the beaconing, the lateral movement, the pattern of it all. Your own agent leaves a trail too. Log its actions like you'll someday have to explain each one to a stranger. Because maybe you will.
+
+None of this is exotic. That's kind of the point that keeps nagging at me. The defenses are as old and unglamorous as the attack was. We just have to actually *apply* them — now, while we're all a little drunk on how clever our agents are.
+
+## Where I've landed
+
+I'm not going to stop building. I don't think you should either. The upside is too real, and honestly, the genie's already out — pretending otherwise is just a way to feel righteous while everybody else ships past you.
+
+But I've stopped thinking of autonomy as a switch you flip on and forget. It's more like fire. Incredible when it's contained. Catastrophic the moment it isn't. And the entire skill — the whole job, really — is in the containing.
+
+So here's my prediction, and you can hold me to it. Within a year, "how much can your agent do without a human" stops being a bragging point and becomes a *liability question* — the kind your security team, or your customers, ask before they'll trust you with anything real. The teams who quietly fenced their agents will barely feel it. The ones who shipped "fully autonomous" as a headline are going to have a very bad week.
+
+I'd rather be in the first group. Even if it's slower. Even if it's a little less magical.
+
+Because that "huh" I said to the empty room? I want to keep feeling it for years. I just also want to be the only one who ever gets to.
+
+<SongPick
+  url="https://open.spotify.com/track/1nFtiJxYdhtFfFtfXBv06s"
+  title="Something in the Way"
+  artist="Nirvana"
+/>
